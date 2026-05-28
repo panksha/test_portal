@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CorpPortal — Enterprise Employee Portal</title>
+    <link rel="stylesheet" href="/static/portal.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">⬡</span>
+            <span class="brand-name">CorpPortal</span>
+        </div>
+        <div class="nav-links">
+            <a href="/register" class="nav-btn btn-primary" id="nav-register-btn">Create Account</a>
+            <a href="/forgot-password" class="nav-btn btn-secondary" id="nav-forgot-btn">Forgot Password?</a>
+        </div>
+    </nav>
+
+    {% if break_locators %}
+    <div class="demo-banner" id="demo-break-banner">
+        ⚠️ DEMO MODE: Locator IDs have been modified to simulate a developer code change. Self-Healing Engine will activate during test execution.
+    </div>
+    {% endif %}
+
+    {% if success_message %}
+    <div class="success-global" id="global-success-msg">
+        ✅ {{ success_message }}
+    </div>
+    {% endif %}
+
+    <main class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Welcome to <span class="highlight">CorpPortal</span></h1>
+            <p class="hero-subtitle">Your secure enterprise workspace. Manage your team, projects, and resources from one place.</p>
+            <div class="hero-actions">
+                <a href="/register" class="cta-btn cta-primary" id="hero-register-btn">Get Started</a>
+                <a href="/forgot-password" class="cta-btn cta-outline" id="hero-forgot-btn">Reset Password</a>
+            </div>
+        </div>
+        <div class="hero-illustration">
+            <div class="stat-card" id="stat-users">
+                <span class="stat-num">12,847</span>
+                <span class="stat-label">Active Users</span>
+            </div>
+            <div class="stat-card" id="stat-uptime">
+                <span class="stat-num">99.98%</span>
+                <span class="stat-label">Uptime SLA</span>
+            </div>
+            <div class="stat-card" id="stat-tests">
+                <span class="stat-num">1,240</span>
+                <span class="stat-label">Automated Tests</span>
+            </div>
+        </div>
+    </main>
+
+    <section class="features" id="features-section">
+        <div class="feature-card" id="feature-qa">
+            <div class="feature-icon">🤖</div>
+            <h3>AI-Powered QA</h3>
+            <p>Intelligent test generation and self-healing automation keeps your quality gates robust.</p>
+        </div>
+        <div class="feature-card" id="feature-ci">
+            <div class="feature-icon">⚡</div>
+            <h3>CI/CD Integration</h3>
+            <p>Seamless GitHub Actions and Azure DevOps pipelines trigger on every commit.</p>
+        </div>
+        <div class="feature-card" id="feature-reports">
+            <div class="feature-icon">📊</div>
+            <h3>Live Reporting</h3>
+            <p>Rich HTML reports with screenshots, logs, and trend analysis at your fingertips.</p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>CorpPortal Demo — AI-Driven QA Automation Showcase | Built with Flask & Selenium</p>
+    </footer>
+</body>
+</html>

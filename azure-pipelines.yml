@@ -1,0 +1,170 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - feature/*
+
+pr:
+  branches:
+    include:
+      - main
+
+parameters:
+  - name: testSuite
+    displayName: 'Test Suite to Run'
+    type: string
+    default: 'all'
+    values:
+      - all
+      - registration
+      - forgot_password
+  - name: breakLocators
+    displayName: 'Simulate Broken Locators (Self-Healing Demo)'
+    type: boolean
+    default: false
+  - name: headless
+    displayName: 'Run in Headless Mode'
+    type: boolean
+    default: true
+
+variables:
+  pythonVersion: '3.11'
+  targetAppPort: '5000'
+  breakLocators: ${{ parameters.breakLocators }}
+
+pool:
+  name: 'Default'  # Targets your self-hosted Ubuntu agent pool
+
+stages:
+  # ══════════════════════════════════════
+  # STAGE 1: Build & Code Quality
+  # ══════════════════════════════════════
+  - stage: Build
+    displayName: 'Build & Code Quality'
+    jobs:
+      - job: CodeQuality
+        displayName: 'Install Dependencies & Lint'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python $(pythonVersion)'
+
+          - script: pip install -r requirements.txt
+            displayName: 'Install Python Dependencies'
+
+          - script: |
+              pip install flake8
+              flake8 qa_framework/ --max-line-length=120 --statistics
+            displayName: 'Run Code Linting'
+            continueOnError: true
+
+  # ══════════════════════════════════════
+  # STAGE 2: QA Test Execution
+  # ══════════════════════════════════════
+  - stage: Test
+    displayName: 'QA Test Execution'
+    dependsOn: Build
+    jobs:
+      - job: RunTests
+        displayName: 'Execute Selenium Test Suite'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python $(pythonVersion)'
+
+          - script: pip install -r requirements.txt
+            displayName: 'Install Dependencies'
+
+          - task: CmdLine@2
+            inputs:
+              script: |
+                python3 target_app/app.py &
+                sleep 3
+                curl -f http://localhost:$(targetAppPort) || exit 1
+            displayName: 'Start Target Web Application (Linux)'
+            env:
+              BREAK_LOCATORS: $(breakLocators)
+
+          - script: |
+              python work_items/work_item_mapper.py --changed-files "RegistrationController,EmailService"
+            displayName: 'Analyze Regression Impact'
+
+          - task: CmdLine@2
+            inputs:
+              script: |
+                mkdir -p qa_framework/reports/html
+                mkdir -p qa_framework/reports/screenshots
+                python3 -m pytest qa_framework/tests/ \
+                  --html=qa_framework/reports/html/report.html \
+                  --self-contained-html \
+                  -v --tb=short
+            displayName: 'Run QA Automation Tests (Linux)'
+            env:
+              BASE_URL: http://localhost:$(targetAppPort)
+              HEADLESS: ${{ parameters.headless }}
+              BREAK_LOCATORS: $(breakLocators)
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'qa_framework/reports/*.xml'
+              failTaskOnFailedTests: false
+            displayName: 'Publish Test Results to Azure DevOps'
+            condition: always()
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'qa_framework/reports/html/report.html'
+              artifact: 'HTMLTestReport'
+            displayName: 'Publish HTML Test Report'
+            condition: always()
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'qa_framework/reports/screenshots'
+              artifact: 'FailureScreenshots'
+            displayName: 'Publish Failure Screenshots'
+            condition: failed()
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'qa_framework/reports/healing_log.json'
+              artifact: 'SelfHealingLog'
+            displayName: 'Publish Self-Healing Event Log'
+            condition: always()
+
+  # ══════════════════════════════════════
+  # STAGE 3: Reporting & Notifications
+  # ══════════════════════════════════════
+  - stage: Report
+    displayName: 'Reporting & Notifications'
+    dependsOn: Test
+    condition: always()
+    jobs:
+      - job: NotifyAndIntegrate
+        displayName: 'Publish Results & Notify Teams'
+        steps:
+          - script: |
+              echo "========================================="
+              echo "  Azure DevOps QA Pipeline Complete"
+              echo "========================================="
+              echo "Pipeline: $(Build.DefinitionName)"
+              echo "Build ID: $(Build.BuildId)"
+              echo "Branch: $(Build.SourceBranchName)"
+              echo "Requested By: $(Build.RequestedFor)"
+              echo "========================================="
+            displayName: 'Print Pipeline Summary'
+
+          - script: |
+              echo "SIMULATED: Posting results to Microsoft Teams..."
+              echo "SIMULATED: Creating Jira bug ticket for failures..."
+              echo "SIMULATED: Updating Azure DevOps Test Plan with latest results..."
+              echo ""
+              echo "Jira API Payload:"
+              echo "  POST https://yourorg.atlassian.net/rest/api/3/issue"
+              echo "  { 'fields': { 'project': { 'key': 'QA' }, 'summary': 'Auto: Test failure on $(Build.SourceBranchName)', 'issuetype': { 'name': 'Bug' }, 'priority': { 'name': 'High' } } }"
+            displayName: 'Simulate Jira Bug Filing & Team Notification'
+            condition: failed()

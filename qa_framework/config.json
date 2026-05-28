@@ -1,0 +1,346 @@
+{
+  "base_url": "http://localhost:5000",
+  "dashboard_port": 8000,
+  "browser": "chrome",
+  "headless": false,
+  "implicit_wait": 0,
+  "explicit_wait": 10,
+  "screenshot_on_failure": true,
+  "reports_dir": "qa_framework/reports",
+  "healing_log": "qa_framework/reports/healing_log.json",
+  "locators": {
+    "registration": {
+      "first_name": {
+        "primary": {
+          "by": "id",
+          "value": "firstName_v2"
+        },
+        "fallbacks": [
+          {
+            "by": "id",
+            "value": "firstName_v2"
+          },
+          {
+            "by": "css",
+            "value": "input[name='first_name']"
+          },
+          {
+            "by": "xpath",
+            "value": "//input[@placeholder='Enter first name']"
+          },
+          {
+            "by": "xpath",
+            "value": "//label[contains(text(),'First Name')]/following-sibling::input"
+          },
+          {
+            "by": "id",
+            "value": "first_name"
+          }
+        ]
+      },
+      "last_name": {
+        "primary": {
+          "by": "id",
+          "value": "lastName_v2"
+        },
+        "fallbacks": [
+          {
+            "by": "id",
+            "value": "lastName_v2"
+          },
+          {
+            "by": "css",
+            "value": "input[name='last_name']"
+          },
+          {
+            "by": "xpath",
+            "value": "//input[@placeholder='Enter last name']"
+          },
+          {
+            "by": "id",
+            "value": "last_name"
+          }
+        ]
+      },
+      "email": {
+        "primary": {
+          "by": "id",
+          "value": "emailAddress_v2"
+        },
+        "fallbacks": [
+          {
+            "by": "id",
+            "value": "emailAddress_v2"
+          },
+          {
+            "by": "css",
+            "value": "input[type='email']"
+          },
+          {
+            "by": "xpath",
+            "value": "//input[@placeholder='Enter your email']"
+          },
+          {
+            "by": "css",
+            "value": "input[name='email']"
+          },
+          {
+            "by": "id",
+            "value": "email"
+          }
+        ]
+      },
+      "password": {
+        "primary": {
+          "by": "id",
+          "value": "userPassword_v2"
+        },
+        "fallbacks": [
+          {
+            "by": "id",
+            "value": "userPassword_v2"
+          },
+          {
+            "by": "css",
+            "value": "input[name='password']"
+          },
+          {
+            "by": "xpath",
+            "value": "//input[@placeholder='Create password']"
+          },
+          {
+            "by": "id",
+            "value": "password"
+          }
+        ]
+      },
+      "confirm_password": {
+        "primary": {
+          "by": "id",
+          "value": "confirmPassword_v2"
+        },
+        "fallbacks": [
+          {
+            "by": "id",
+            "value": "confirmPassword_v2"
+          },
+          {
+            "by": "css",
+            "value": "input[name='confirm_password']"
+          },
+          {
+            "by": "xpath",
+            "value": "//input[@placeholder='Re-enter password']"
+          },
+          {
+            "by": "id",
+            "value": "confirm_password"
+          }
+        ]
+      },
+      "terms": {
+        "primary": {
+          "by": "id",
+          "value": "termsCheckbox_v2"
+        },
+        "fallbacks": [
+          {
+            "by": "id",
+            "value": "termsCheckbox_v2"
+          },
+          {
+            "by": "css",
+            "value": "input[type='checkbox']"
+          },
+          {
+            "by": "css",
+            "value": "input[name='terms']"
+          },
+          {
+            "by": "id",
+            "value": "terms"
+          }
+        ]
+      },
+      "register_btn": {
+        "primary": {
+          "by": "id",
+          "value": "registerBtn_v2"
+        },
+        "fallbacks": [
+          {
+            "by": "id",
+            "value": "registerBtn_v2"
+          },
+          {
+            "by": "css",
+            "value": "button[type='submit']"
+          },
+          {
+            "by": "xpath",
+            "value": "//button[contains(text(),'Create Account')]"
+          },
+          {
+            "by": "id",
+            "value": "register-btn"
+          }
+        ]
+      },
+      "form_error": {
+        "primary": {
+          "by": "id",
+          "value": "form-error-global"
+        },
+        "fallbacks": [
+          {
+            "by": "css",
+            "value": ".form-error-global"
+          },
+          {
+            "by": "xpath",
+            "value": "//*[contains(@class,'form-error')]"
+          }
+        ]
+      },
+      "form_success": {
+        "primary": {
+          "by": "id",
+          "value": "form-success"
+        },
+        "fallbacks": [
+          {
+            "by": "css",
+            "value": ".form-success"
+          },
+          {
+            "by": "xpath",
+            "value": "//*[contains(@class,'form-success')]"
+          }
+        ]
+      }
+    },
+    "forgot_password": {
+      "email": {
+        "primary": {
+          "by": "id",
+          "value": "reset-email"
+        },
+        "fallbacks": [
+          {
+            "by": "id",
+            "value": "resetEmail_v2"
+          },
+          {
+            "by": "css",
+            "value": "input[type='email']"
+          },
+          {
+            "by": "xpath",
+            "value": "//input[@placeholder='Enter your registered email']"
+          },
+          {
+            "by": "css",
+            "value": "input[name='email']"
+          }
+        ]
+      },
+      "send_btn": {
+        "primary": {
+          "by": "id",
+          "value": "send-reset-btn"
+        },
+        "fallbacks": [
+          {
+            "by": "id",
+            "value": "sendResetBtn_v2"
+          },
+          {
+            "by": "css",
+            "value": "button[type='submit']"
+          },
+          {
+            "by": "xpath",
+            "value": "//button[contains(text(),'Send Reset Link')]"
+          }
+        ]
+      },
+      "success_msg": {
+        "primary": {
+          "by": "id",
+          "value": "forgot-success-msg"
+        },
+        "fallbacks": [
+          {
+            "by": "css",
+            "value": ".form-success"
+          },
+          {
+            "by": "xpath",
+            "value": "//*[contains(@class,'form-success')]"
+          }
+        ]
+      },
+      "error_msg": {
+        "primary": {
+          "by": "id",
+          "value": "form-error-global"
+        },
+        "fallbacks": [
+          {
+            "by": "css",
+            "value": ".form-error-global"
+          },
+          {
+            "by": "xpath",
+            "value": "//*[contains(@class,'form-error')]"
+          }
+        ]
+      },
+      "back_to_login": {
+        "primary": {
+          "by": "id",
+          "value": "back-to-login-link"
+        },
+        "fallbacks": [
+          {
+            "by": "link_text",
+            "value": "Back to Login"
+          },
+          {
+            "by": "css",
+            "value": "a[href='/']"
+          },
+          {
+            "by": "xpath",
+            "value": "//a[contains(text(),'Back to Login')]"
+          }
+        ]
+      }
+    }
+  },
+  "test_data": {
+    "valid_user": {
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe.test@example.com",
+      "password": "SecurePass@123",
+      "confirm_password": "SecurePass@123"
+    },
+    "existing_email": "existing@demo.com",
+    "invalid_emails": [
+      "notanemail",
+      "missing@",
+      "@nodomain.com",
+      "spaces in@email.com"
+    ],
+    "weak_passwords": [
+      "short",
+      "nouppercase1!",
+      "NOLOWER1!",
+      "NoSpecial1",
+      "NoNumber!"
+    ],
+    "valid_reset_email": "test@example.com",
+    "unregistered_email": "notregistered@test.com"
+  }
+}

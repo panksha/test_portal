@@ -1,0 +1,73 @@
+{
+  "work_items": [
+    {
+      "id": "WI-001",
+      "type": "User Story",
+      "title": "User Registration",
+      "priority": "High",
+      "sprint": "Sprint 4",
+      "assignee": "Dev Team",
+      "status": "In Testing",
+      "linked_components": ["RegistrationController", "UserModel", "EmailService", "registration.html"],
+      "historical_defect_rate": 0.35,
+      "description": "As a new user, I want to be able to register an account using my email and password so that I can access the application.",
+      "acceptance_criteria": [
+        "User can register with a valid email address and password",
+        "Password must be at least 8 characters with one uppercase, one number, and one special character",
+        "Duplicate email addresses must be rejected with a clear error message",
+        "A confirmation email is sent after successful registration",
+        "User is redirected to the login page after successful registration",
+        "Empty fields must be validated with appropriate error messages",
+        "First name and last name are required fields",
+        "Terms and conditions acceptance is mandatory"
+      ],
+      "keywords": ["register", "signup", "email", "password", "validation", "confirmation", "duplicate", "terms"],
+      "linked_test_ids": ["TC-REG-001", "TC-REG-002", "TC-REG-003", "TC-REG-004", "TC-REG-005", "TC-REG-006", "TC-REG-007", "TC-REG-008"]
+    },
+    {
+      "id": "WI-002",
+      "type": "User Story",
+      "title": "Forgot Password",
+      "priority": "Medium",
+      "sprint": "Sprint 4",
+      "assignee": "Dev Team",
+      "status": "In Testing",
+      "linked_components": ["PasswordResetController", "EmailService", "TokenService", "forgot_password.html"],
+      "historical_defect_rate": 0.22,
+      "description": "As a registered user who has forgotten their password, I want to reset my password via email so that I can regain access to my account.",
+      "acceptance_criteria": [
+        "User can request a password reset by providing their registered email",
+        "An unregistered email must return an error or generic message (for security)",
+        "A reset link is emailed to the registered address",
+        "The reset link expires after 30 minutes",
+        "Empty email field must be validated with an error message",
+        "Invalid email format must be rejected",
+        "User receives a success confirmation message after submitting a valid email"
+      ],
+      "keywords": ["forgot", "password", "reset", "email", "token", "link", "expiry", "recovery"],
+      "linked_test_ids": ["TC-FP-001", "TC-FP-002", "TC-FP-003", "TC-FP-004", "TC-FP-005", "TC-FP-006"]
+    },
+    {
+      "id": "WI-003",
+      "type": "Bug",
+      "title": "Registration form accepts passwords without special characters",
+      "priority": "High",
+      "sprint": "Sprint 3",
+      "assignee": "QA Team",
+      "status": "Closed",
+      "linked_components": ["RegistrationController", "PasswordValidator"],
+      "historical_defect_rate": 0.0,
+      "description": "The registration form was accepting passwords that did not contain special characters, violating the password policy.",
+      "acceptance_criteria": [],
+      "keywords": ["password", "validation", "special character", "registration"],
+      "linked_test_ids": ["TC-REG-003"]
+    }
+  ],
+  "defect_heatmap": {
+    "RegistrationController": {"defect_count": 7, "risk_score": 0.85},
+    "PasswordResetController": {"defect_count": 3, "risk_score": 0.55},
+    "EmailService": {"defect_count": 5, "risk_score": 0.70},
+    "UserModel": {"defect_count": 2, "risk_score": 0.40},
+    "TokenService": {"defect_count": 4, "risk_score": 0.65}
+  }
+}

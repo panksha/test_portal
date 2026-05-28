@@ -1,0 +1,178 @@
+name: AI-Driven QA Automation Pipeline
+
+on:
+  push:
+    branches: [main, develop, feature/**]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - registration
+          - forgot_password
+      break_locators:
+        description: 'Simulate broken locators (self-healing demo)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11'
+  TARGET_APP_PORT: 5000
+  BREAK_LOCATORS: ${{ github.event.inputs.break_locators || 'false' }}
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: Code Quality & Static Analysis
+  # ─────────────────────────────────────────────
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Linting
+        run: |
+          pip install flake8
+          flake8 qa_framework/ --max-line-length=120 --exclude=__pycache__
+        continue-on-error: true
+
+  # ─────────────────────────────────────────────
+  # JOB 2: QA Test Execution
+  # ─────────────────────────────────────────────
+  qa-tests:
+    name: QA Test Execution
+    runs-on: ubuntu-latest
+    needs: code-quality
+    strategy:
+      matrix:
+        browser: [chrome]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Chrome Driver
+        uses: browser-actions/setup-chrome@latest
+
+      - name: Start Target Web Application
+        run: |
+          python target_app/app.py &
+          sleep 3
+          curl -f http://localhost:${{ env.TARGET_APP_PORT }} || exit 1
+        env:
+          BREAK_LOCATORS: ${{ env.BREAK_LOCATORS }}
+
+      - name: Analyze Regression Impact
+        run: |
+          echo "Running regression impact analysis..."
+          python work_items/work_item_mapper.py --changed-files "RegistrationController,EmailService"
+
+      - name: Run QA Automation Tests
+        run: |
+          mkdir -p qa_framework/reports/html
+          mkdir -p qa_framework/reports/screenshots
+          python -m pytest qa_framework/tests/ \
+            --html=qa_framework/reports/html/report.html \
+            --self-contained-html \
+            -v \
+            --tb=short \
+            -x
+        env:
+          BASE_URL: http://localhost:${{ env.TARGET_APP_PORT }}
+          BROWSER: ${{ matrix.browser }}
+          HEADLESS: true
+          BREAK_LOCATORS: ${{ env.BREAK_LOCATORS }}
+
+      - name: Check Self-Healing Log
+        if: always()
+        run: |
+          if [ -f "qa_framework/reports/healing_log.json" ]; then
+            echo "=== Self-Healing Events ==="
+            cat qa_framework/reports/healing_log.json
+          fi
+
+      - name: Publish HTML Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-test-report-${{ matrix.browser }}
+          path: qa_framework/reports/html/report.html
+          retention-days: 30
+
+      - name: Publish Screenshots on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshots-${{ matrix.browser }}
+          path: qa_framework/reports/screenshots/
+          retention-days: 7
+
+      - name: Publish Healing Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: self-healing-log
+          path: qa_framework/reports/healing_log.json
+          retention-days: 30
+
+  # ─────────────────────────────────────────────
+  # JOB 3: Notify Results (Simulated Jira/Slack)
+  # ─────────────────────────────────────────────
+  notify:
+    name: Notify & Integrate
+    runs-on: ubuntu-latest
+    needs: qa-tests
+    if: always()
+    steps:
+      - name: Post Results Summary
+        run: |
+          echo "========================================="
+          echo "  QA Pipeline Execution Complete"
+          echo "========================================="
+          echo "Status: ${{ needs.qa-tests.result }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "-----------------------------------------"
+          echo "Next Steps:"
+          echo "  - Download HTML report from Artifacts"
+          echo "  - Review self-healing log for locator drift"
+          echo "  - File Jira bugs for any new failures"
+          echo "========================================="
+
+      - name: Simulate Jira Bug Creation on Failure
+        if: needs.qa-tests.result == 'failure'
+        run: |
+          echo "SIMULATED: Creating Jira Bug ticket..."
+          echo "  Project: QA-DEMO"
+          echo "  Issue Type: Bug"
+          echo "  Summary: Automated test failure on branch ${{ github.ref_name }}"
+          echo "  Priority: High"
+          echo "  Labels: automated, regression, ${{ github.ref_name }}"
+          echo "  Assignee: QA Lead"
+          echo "SIMULATED: Jira API call -> POST https://yourorg.atlassian.net/rest/api/3/issue"

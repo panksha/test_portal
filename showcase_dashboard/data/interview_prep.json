@@ -1,0 +1,177 @@
+{
+  "categories": [
+    {
+      "id": "ai-test-gen",
+      "icon": "🤖",
+      "title": "AI & Test Generation",
+      "color": "#6366f1",
+      "questions": [
+        {
+          "id": "q1",
+          "question": "How are you generating test cases using AI?",
+          "answer": "I use a structured Chain-of-Thought prompting approach with ChatGPT/Copilot. I define a system prompt establishing the AI as a Senior QA Architect, then provide the full user story, acceptance criteria, and explicit constraints — including required test types like boundary value, equivalence partitioning, and negative scenarios. The AI then reasons step-by-step before generating a structured test case table with TC ID, title, preconditions, steps, expected results, priority, and risk level.",
+          "keywords": ["Chain-of-Thought prompting", "Structured prompts", "System prompt + Role + Context + Constraints", "Boundary Value Analysis", "Equivalence Partitioning", "Test case schema", "GPT-4 / GitHub Copilot"],
+          "example": "For the 'User Registration' feature, I use a prompt that first asks the AI to identify all actors and flows, then generate test cases covering AC-001 to AC-006, then self-validate using a coverage checklist — all in one prompt chain."
+        },
+        {
+          "id": "q2",
+          "question": "What prompts are you using?",
+          "answer": "I use a 4-part prompt structure: (1) System Prompt — defines the AI persona as a Senior QA Architect. (2) Role + Context — specifies the module, tech stack, and environment. (3) Chain-of-Thought instruction — tells the AI to think step by step: identify actors → map acceptance criteria → generate test cases → self-validate. (4) Output Schema — enforces a fixed table format with TC ID, Priority, and AC Reference columns. I also use follow-up prompts to request additional edge cases or security scenarios.",
+          "keywords": ["System Prompt", "Role Prompt", "Chain-of-Thought", "Output Schema", "Follow-up prompting", "Prompt chaining", "Constraint-based prompting"],
+          "example": "My base prompt is stored in ai_prompts/test_generation_prompt.md — I can open that file and walk through each section."
+        },
+        {
+          "id": "q3",
+          "question": "How do you validate AI-generated test cases?",
+          "answer": "I use a formal 5-section validation checklist. Section 1 checks coverage completeness — every acceptance criterion has at least one test case. Section 2 checks test case quality — unique IDs, specific expected results, independent execution. Section 3 handles AI-specific validation — checking for hallucinated fields, incorrect error messages, or assumed behavior that doesn't match the actual application. Section 4 checks automation readiness — all locators must be identifiable. Section 5 requires reviewer sign-off from QA Engineer, QA Lead, and the BA.",
+          "keywords": ["Hallucination detection", "Requirement traceability", "Coverage completeness", "Boundary value verification", "Human review mandatory", "Sign-off process", "Test independence"],
+          "example": "I maintain the ai_prompts/validation_checklist.md file as a formal gate — no AI-generated test case is committed to the repo without passing this checklist."
+        },
+        {
+          "id": "q4",
+          "question": "What are the limitations of AI-generated testing?",
+          "answer": "Key limitations include: (1) Hallucination — AI invents plausible but incorrect field names, error messages, or behavior. (2) Happy-path bias — AI naturally favors positive scenarios and needs explicit instruction for negative tests. (3) No application context — AI doesn't know your actual UI or API behavior without detailed context. (4) No dynamic state awareness — AI can't know pre-existing data states. (5) Security and compliance gaps — AI often misses subtle security test cases. (6) Maintenance drift — AI-generated tests become stale as the application evolves. The solution is structured prompting + mandatory human review + CI/CD validation.",
+          "keywords": ["Hallucination", "Happy-path bias", "Context limitations", "Human review mandatory", "Prompt engineering mitigates", "Maintenance overhead", "Security gap"],
+          "example": "In my validation checklist, I have a dedicated 'AI-Specific Validation' section that explicitly checks for hallucinated fields and incorrect error messages."
+        }
+      ]
+    },
+    {
+      "id": "automation-framework",
+      "icon": "⚙️",
+      "title": "Automation Framework",
+      "color": "#06b6d4",
+      "questions": [
+        {
+          "id": "q5",
+          "question": "Explain your Selenium framework architecture.",
+          "answer": "I use a layered Page Object Model (POM) architecture. Layer 1 is the BasePage — provides self-healing find_element, explicit wait utilities (wait_for_visible, wait_for_clickable), and interaction helpers. Layer 2 is Page Objects — each page has its own class (RegistrationPage, ForgotPasswordPage) that encapsulates locators and exposes business-level action methods like register() or submit_reset_request(). Layer 3 is the Test Layer — pytest test functions call page-level methods, making tests highly readable and maintainable. Cross-cutting concerns like WebDriver setup, teardown, screenshot on failure, and report configuration are managed by conftest.py fixtures.",
+          "keywords": ["Page Object Model", "BasePage", "Explicit waits", "conftest.py fixtures", "WebDriver management", "Separation of concerns", "Layered architecture"],
+          "example": "test_valid_registration() calls page.register(first_name, last_name, email, password) — a single method that internally fills the form using self-healing locators through BasePage."
+        },
+        {
+          "id": "q6",
+          "question": "Why did you choose this framework design?",
+          "answer": "POM was chosen for three reasons: (1) Maintainability — if a locator changes, I update it in one place (the Page Object), not across 20 tests. (2) Reusability — the same register() action method is called by all registration tests. (3) Readability — test methods read like plain English: page.open().register(...).assert success. I added the Self-Healing Engine on top of standard POM because enterprise applications evolve constantly, and brittle locators are the #1 cause of flaky tests. The self-healing layer reduces maintenance overhead dramatically.",
+          "keywords": ["Maintainability", "Reusability", "Single responsibility", "DRY principle", "Reduced maintenance", "Flaky test reduction", "Enterprise scalability"],
+          "example": "When we simulate a developer changing element IDs in this demo, the self-healing engine detects the failure, tries 4 fallback strategies, and heals the locator — the test passes without any manual intervention."
+        },
+        {
+          "id": "q7",
+          "question": "How are you handling reusable components?",
+          "answer": "Reusability is achieved at 3 levels: (1) BasePage — all wait utilities, self-healing find(), navigation, and screenshot methods are inherited by every Page Object. (2) Fixtures in conftest.py — WebDriver setup, teardown, and screenshot hooks are defined once and shared across all test files via pytest's fixture injection. (3) Test Data — centralized in config.json under a 'test_data' key, so test inputs are managed in one place and never hardcoded into test methods.",
+          "keywords": ["conftest.py fixtures", "BasePage inheritance", "Centralized test data", "config.json", "DRY principle", "pytest fixture injection", "Reusable page actions"],
+          "example": "The WebDriver fixture in conftest.py handles Chrome and Edge, headless/headed mode, and implicit wait settings — all tests inherit this behavior automatically."
+        },
+        {
+          "id": "q8",
+          "question": "How do you manage waits and dynamic elements?",
+          "answer": "I enforce a strict 'explicit waits only' policy — implicit waits are set to 0 in conftest.py. I use WebDriverWait with ExpectedConditions: presence_of_element_located for DOM presence, visibility_of_element_located for visible elements, element_to_be_clickable before interactions. The BasePage wraps these in wait_for_visible() and wait_for_clickable() helper methods. For AJAX/dynamic content, I wait for the response element to appear rather than using Thread.sleep(). I never use hard-coded waits except for minimal load time buffers (0.5s) clearly marked as such.",
+          "keywords": ["Explicit waits only", "WebDriverWait", "ExpectedConditions", "No Thread.sleep()", "presence_of_element_located", "element_to_be_clickable", "AJAX handling"],
+          "example": "After clicking the Register button, I wait for either the success div or error div to become visible, which correctly handles AJAX form submissions."
+        },
+        {
+          "id": "q9",
+          "question": "How do you support scalability?",
+          "answer": "Scalability is addressed at framework, execution, and reporting levels. Framework: adding a new page requires only creating a new Page Object class — no changes to base infrastructure. Execution: pytest-xdist enables parallel test execution; tests are already independent so they can run concurrently. CI/CD: GitHub Actions matrix strategy can run the same suite across Chrome and Edge simultaneously. Configuration: all environment-specific settings (URL, timeouts, browser) are in config.json, making it trivial to point at staging vs. production. Self-healing: reduces the manual maintenance burden as the app scales.",
+          "keywords": ["pytest-xdist parallel execution", "Independent test design", "CI/CD matrix strategy", "Configuration-driven", "Stateless tests", "Horizontal scaling", "Environment agnostic"],
+          "example": "In our GitHub Actions pipeline, we use a matrix strategy with browser: [chrome, edge] — both suites run in parallel, doubling coverage with no extra code."
+        }
+      ]
+    },
+    {
+      "id": "regression-testing",
+      "icon": "🔬",
+      "title": "Regression Testing",
+      "color": "#10b981",
+      "questions": [
+        {
+          "id": "q10",
+          "question": "How would AI identify impacted regression areas?",
+          "answer": "I implement risk-based regression selection through the RegressionAnalyzer module. It takes a list of changed files or components, maps them to affected test modules using a component-to-test mapping table, applies historical defect rates as a risk multiplier, and ranks test suites by risk score. High-risk suites (score ≥ 0.7) are marked MUST RUN, medium-risk (0.4–0.7) as SHOULD RUN, and low-risk as DEFER. The output is a ranked test list and an optimized pytest command. In CI/CD, this runs automatically using git diff to extract changed files.",
+          "keywords": ["Risk-based testing", "Component-to-test mapping", "Historical defect rate", "Risk score ranking", "MUST RUN / DEFER classification", "git diff integration", "pytest subset command"],
+          "example": "When RegistrationController.py changes, my analyzer immediately flags all 8 registration tests as HIGH risk and the 2 EmailService-related forgot-password tests as MEDIUM risk."
+        },
+        {
+          "id": "q11",
+          "question": "How would repository/work item analysis help?",
+          "answer": "Work item analysis connects business requirements to test coverage. Each work item (Jira story or ADO task) contains: acceptance criteria, linked components, and historical defect rates. The WorkItemMapper reads these and creates a traceability matrix from requirement → component → test case. When a developer commits code against a specific work item, the CI pipeline automatically identifies the linked test IDs, runs them first, and reports coverage against the acceptance criteria. This closes the loop between requirements, code, and tests.",
+          "keywords": ["Requirement traceability", "Work item mapping", "Acceptance criteria coverage", "Traceability matrix", "Jira integration", "Azure DevOps Test Plans", "Bi-directional traceability"],
+          "example": "WI-001 (User Registration) has 8 linked test IDs in backlog.json. Running work_item_mapper.py --id WI-001 shows all 8 tests and their acceptance criteria coverage instantly."
+        },
+        {
+          "id": "q12",
+          "question": "How can historical defects improve regression strategy?",
+          "answer": "Historical defect data powers smarter regression decisions. I maintain a defect_heatmap in backlog.json with defect counts and risk scores per component. Components with high defect rates (like RegistrationController at 35%) get a higher risk multiplier in the RegressionAnalyzer, meaning their tests are always prioritized. Over time, as new defects are filed and fixed, the heatmap is updated, making the regression strategy continuously self-improving. This is essentially a feedback loop: defect → fix → regression → heatmap update → smarter next regression.",
+          "keywords": ["Defect heatmap", "Historical defect rate", "Risk multiplier", "Continuous improvement", "Feedback loop", "Data-driven regression", "Predictive quality"],
+          "example": "RegistrationController has a 0.85 risk score and 7 historical defects. EmailService has 0.70 with 5 defects. My analyzer uses these to weight test priority automatically."
+        }
+      ]
+    },
+    {
+      "id": "devops-cicd",
+      "icon": "⚡",
+      "title": "DevOps & CI/CD",
+      "color": "#f59e0b",
+      "questions": [
+        {
+          "id": "q13",
+          "question": "How would you integrate with Azure DevOps/Jira?",
+          "answer": "For Azure DevOps: The pipeline YAML uses PublishTestResults task to push JUnit XML results into the ADO Test Plans automatically. PublishPipelineArtifact uploads HTML reports and screenshots. Test run status is reflected in the ADO Test Plan dashboard. For Jira: I use Jira REST API — on test failure, the pipeline POSTs to /rest/api/3/issue with auto-populated fields (summary, description with failure details, labels including the branch name, priority based on risk score). This creates a bug ticket without human intervention. Both integrations use secure environment variables for API tokens — never hardcoded.",
+          "keywords": ["PublishTestResults task", "Jira REST API", "POST /rest/api/3/issue", "Auto bug filing", "Environment variables for secrets", "ADO Test Plans", "Webhook-based integration"],
+          "example": "In our azure-pipelines.yml, the PublishTestResults@2 task converts pytest's JUnit XML output into ADO test run records — visible in the Test Plans section with pass/fail trends."
+        },
+        {
+          "id": "q14",
+          "question": "How would test execution be triggered automatically?",
+          "answer": "Tests are triggered by multiple CI/CD events: (1) Push to main/develop — full regression suite runs. (2) Pull Request — targeted test suite runs (regression analysis determines which tests). (3) Scheduled nightly run — full suite on a cron schedule for comprehensive coverage. (4) Manual dispatch — with dropdown inputs for test suite selection and self-healing demo toggle. (5) API-triggered — from our dashboard's Run Tests button, which calls the /api/run-tests endpoint. The pipeline also supports branch-specific strategies: feature branches run smoke tests, main runs full regression.",
+          "keywords": ["Push trigger", "PR trigger", "Cron schedule", "Manual dispatch", "workflow_dispatch", "Branch strategies", "pipeline triggers"],
+          "example": "In our GitHub Actions YAML, 'on: push, pull_request, workflow_dispatch' — three trigger types in one file. The manual dispatch has a 'test_suite' dropdown for targeted execution."
+        },
+        {
+          "id": "q15",
+          "question": "How would reports/screenshots/logs be published?",
+          "answer": "Publishing happens at 3 levels: (1) pytest-html generates a self-contained HTML report with embedded pass/fail details and can include screenshot attachments via the pytest_html extras API — this is implemented in conftest.py's pytest_runtest_makereport hook. (2) CI/CD artifacts — GitHub Actions upload-artifact and ADO PublishPipelineArtifact preserve reports for 30 days. (3) Self-healing logs — healing_log.json is a separate artifact showing which locators were repaired during the run. Screenshots are captured on every test failure and named with test name + timestamp for easy diagnosis.",
+          "keywords": ["pytest-html", "Self-contained HTML", "Screenshot on failure", "CI/CD artifacts", "30-day retention", "healing_log.json", "conftest.py hooks"],
+          "example": "Our conftest.py pytest_runtest_makereport hook fires on every failure, saves a timestamped screenshot, and uses pytest_html extras to embed it directly in the HTML report."
+        }
+      ]
+    },
+    {
+      "id": "architecture-design",
+      "icon": "🏗️",
+      "title": "Architecture & Design",
+      "color": "#ec4899",
+      "questions": [
+        {
+          "id": "q16",
+          "question": "How would you scale this framework enterprise-wide?",
+          "answer": "Enterprise scaling requires 4 dimensions: (1) Execution scaling — Selenium Grid (or cloud grids like BrowserStack/Sauce Labs) for parallel cross-browser execution, pytest-xdist for local parallelism. (2) Framework scaling — POM means new pages = new classes, zero impact on existing tests. (3) Reporting scaling — Allure or TestRail integration provides trends, flakiness tracking, and historical comparisons. (4) Maintenance scaling — Self-healing engine reduces locator maintenance overhead, and a central locator repository means one update heals all affected tests. CI/CD matrix strategies handle cross-environment and cross-browser coverage automatically.",
+          "keywords": ["Selenium Grid", "BrowserStack/Sauce Labs", "pytest-xdist", "Allure reporting", "Cross-browser matrix", "Central locator repository", "TestRail integration"],
+          "example": "With Selenium Grid, we can run all 14 tests simultaneously across Chrome, Firefox, and Edge — what takes 8 minutes sequentially completes in under 3 minutes in parallel."
+        },
+        {
+          "id": "q17",
+          "question": "How would you reduce flaky tests?",
+          "answer": "Flakiness has 5 main causes and I address each: (1) Timing issues → explicit waits only, no Thread.sleep(). (2) State dependency → each test is independent, no shared state between tests. (3) Locator fragility → Self-Healing Engine with 4-layer fallback strategy. (4) Test data conflicts → unique data per test run (timestamp-based emails) and pre-seeded test data. (5) Environment variability → Docker-based test environments for consistency. I also run a flakiness detection job in CI that reruns failed tests 3 times — if a test passes on retry, it's flagged as flaky and added to the maintenance queue.",
+          "keywords": ["Explicit waits", "Test independence", "Self-healing locators", "Unique test data", "Docker environments", "Flakiness detection", "Retry mechanism"],
+          "example": "Our timestamp-based email generation (john.doe.{timestamp}@example.com) ensures TC-REG-001 never conflicts with a previous test run's registered user."
+        },
+        {
+          "id": "q18",
+          "question": "How would you support self-healing automation?",
+          "answer": "Self-healing works through a 4-layer fallback system: (1) Primary locator — the standard ID or CSS from config.json. (2) Layer 1 fallback — alternative ID (e.g., the renamed ID after a developer's code change). (3) Layer 2 fallback — structural CSS selector (e.g., input[type='email']). (4) Layer 3 fallback — semantic XPath using placeholder text or label association. On healing: the working locator is promoted to primary in config.json, the old primary is preserved as a fallback, and the event is logged to healing_log.json with timestamp, page, and locator key. This creates a self-improving system — as locators drift, the config automatically adapts.",
+          "keywords": ["4-layer fallback", "Locator promotion", "config.json repository", "Semantic XPath", "Healing event log", "Self-improving config", "NoSuchElementException intercept"],
+          "example": "Live demo: enable 'Break Locators' on the dashboard, run tests — watch the self-healing engine intercept the NoSuchElementException, try 4 strategies, find the element, heal the config, and pass the test."
+        },
+        {
+          "id": "q19",
+          "question": "How would you improve execution speed?",
+          "answer": "Speed improvements across 4 layers: (1) Parallel execution — pytest-xdist -n auto uses all CPU cores, Selenium Grid distributes across machines. (2) Headless mode — eliminates browser rendering overhead, typically 30-40% faster. (3) Smart test selection — risk-based regression runs only impacted tests instead of the full suite. (4) WebDriver reuse — function-scoped fixtures restart the driver per test for isolation, but class-scoped can be used for groups of related read-only tests. (5) API-level testing — for validations that don't need UI, test the REST API directly (faster and more reliable). (6) Parallelizing setup — start the target app and download ChromeDriver concurrently.",
+          "keywords": ["pytest-xdist -n auto", "Headless mode", "Risk-based selection", "WebDriver scope", "API testing shortcut", "Parallel setup", "30-40% speed improvement"],
+          "example": "In our pipeline, we use headless=true for CI runs and headed only for local debug. This alone cuts execution time from ~4 minutes to ~2.5 minutes for our 14 tests."
+        }
+      ]
+    }
+  ]
+}

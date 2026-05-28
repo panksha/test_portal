@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI-Driven QA Automation — Interview Showcase Dashboard</title>
+  <meta name="description" content="Live AI-driven QA automation demo: Selenium POM, self-healing locators, intelligent regression analysis, CI/CD integration."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/assets/style.css"/>
+</head>
+<body>
+
+<!-- ════ HEADER ════════════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-brand">
+    <div class="brand-logo">
+      <span class="logo-hex">⬡</span>
+      <div>
+        <div class="brand-title">QA<span class="brand-accent">AI</span> Showcase</div>
+        <div class="brand-sub">AI-Driven Automation Framework</div>
+      </div>
+    </div>
+  </div>
+  <div class="header-status">
+    <div class="status-dot" id="flask-status-dot"></div>
+    <span class="status-label" id="flask-status-text">Checking servers...</span>
+    <div class="healing-badge" id="healing-badge" style="display:none">
+      <span>🔧</span><span id="healing-count">0</span> Healed
+    </div>
+  </div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="demo" id="tab-demo">
+      <span>🚀</span> Live Demo
+    </button>
+    <button class="tab-btn" data-tab="architecture" id="tab-arch">
+      <span>🏗️</span> Architecture
+    </button>
+    <button class="tab-btn" data-tab="qa" id="tab-qa">
+      <span>💬</span> Interview Q&amp;A
+    </button>
+    <button class="tab-btn" data-tab="devops" id="tab-devops">
+      <span>⚡</span> DevOps
+    </button>
+  </nav>
+</header>
+
+<!-- ════ MAIN CONTENT ══════════════════════════════════════════════════════ -->
+<main class="main-content">
+
+<!-- ╔══ TAB 1: LIVE DEMO ═══════════════════════════════════════════════════╗ -->
+<section class="tab-content active" id="tab-content-demo">
+
+  <!-- Row 1: Work Item + AI Prompt -->
+  <div class="grid-2">
+    <!-- Work Item Panel -->
+    <div class="panel" id="work-item-panel">
+      <div class="panel-header">
+        <span class="panel-icon">📋</span>
+        <h2 class="panel-title">Step 1 — Pick Work Item</h2>
+      </div>
+      <div class="panel-body">
+        <label class="field-label">Select Jira / ADO Work Item</label>
+        <select class="select-input" id="work-item-select">
+          <option value="WI-001">WI-001 — User Registration (High Priority)</option>
+          <option value="WI-002">WI-002 — Forgot Password (Medium Priority)</option>
+        </select>
+        <button class="btn btn-primary mt-16" id="load-work-item-btn">
+          Load Work Item
+        </button>
+        <div class="work-item-detail" id="work-item-detail" style="display:none">
+          <div class="wi-header">
+            <div class="wi-badge" id="wi-badge">Story</div>
+            <div class="wi-title" id="wi-title"></div>
+          </div>
+          <div class="wi-meta">
+            <span class="meta-chip" id="wi-priority"></span>
+            <span class="meta-chip" id="wi-defect"></span>
+          </div>
+          <div class="wi-section-title">Acceptance Criteria</div>
+          <ul class="wi-criteria" id="wi-criteria"></ul>
+          <div class="wi-section-title mt-12">Linked Test Cases</div>
+          <div class="wi-tests" id="wi-tests"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Prompt Panel -->
+    <div class="panel" id="ai-prompt-panel">
+      <div class="panel-header">
+        <span class="panel-icon">🤖</span>
+        <h2 class="panel-title">Step 2 — AI Prompt Engineering</h2>
+      </div>
+      <div class="panel-body">
+        <div class="prompt-tabs">
+          <button class="prompt-tab active" data-ptab="system">System</button>
+          <button class="prompt-tab" data-ptab="chain">Chain-of-Thought</button>
+          <button class="prompt-tab" data-ptab="generated">Generated Tests</button>
+        </div>
+        <div class="prompt-content" id="ptab-system">
+          <div class="code-block">
+<span class="code-comment">// System Prompt — Establishes AI persona</span>
+<span class="code-key">SYSTEM:</span> You are a <span class="code-val">Senior QA Automation Architect</span> 
+with 12+ years experience. Expertise in:
+  • Selenium WebDriver automation
+  • Test design: BVA, EP, Decision Tables
+  • Risk-based regression strategy
+  • CI/CD integration
+
+<span class="code-key">OUTPUT FORMAT:</span>
+| TC ID | Title | Preconditions | Steps | Expected | Priority | Risk | AC Ref |
+          </div>
+        </div>
+        <div class="prompt-content hidden" id="ptab-chain">
+          <div class="code-block">
+<span class="code-comment">// Chain-of-Thought — Forces step-by-step reasoning</span>
+<span class="code-key">CHAIN OF THOUGHT:</span>
+  Step 1: Identify all <span class="code-val">actors</span> and user flows
+  Step 2: For each AC → (a) happy path, (b) negative, (c) boundary
+  Step 3: Find <span class="code-val">implicit requirements</span> (security, a11y)
+  Step 4: Check for <span class="code-val">gaps</span> in coverage
+  Step 5: Generate final test case table
+
+<span class="code-key">SELF-VALIDATE:</span>
+  ✓ Every AC has ≥1 test case
+  ✓ ≥1 negative test per AC
+  ✓ Boundary values explicitly tested
+  ✓ No duplicate test cases
+          </div>
+        </div>
+        <div class="prompt-content hidden" id="ptab-generated">
+          <div class="generated-tests-table" id="generated-tests-table">
+            <div class="placeholder-msg">👆 Load a work item and the AI-generated test cases will appear here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Regression Analyzer -->
+  <div class="panel" id="regression-panel">
+    <div class="panel-header">
+      <span class="panel-icon">🔬</span>
+      <h2 class="panel-title">Step 3 — Intelligent Regression Analysis</h2>
+      <div class="panel-header-right">
+        <span class="badge badge-info">AI-Powered Risk Scoring</span>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="grid-3">
+        <div>
+          <label class="field-label">Simulate Code Changes (Select Components)</label>
+          <div class="checkbox-list" id="component-checklist">
+            <label class="check-item"><input type="checkbox" value="RegistrationController" checked> RegistrationController</label>
+            <label class="check-item"><input type="checkbox" value="EmailService"> EmailService</label>
+            <label class="check-item"><input type="checkbox" value="PasswordValidator"> PasswordValidator</label>
+            <label class="check-item"><input type="checkbox" value="UserModel"> UserModel</label>
+            <label class="check-item"><input type="checkbox" value="TokenService"> TokenService</label>
+            <label class="check-item"><input type="checkbox" value="PasswordResetController"> PasswordResetController</label>
+          </div>
+          <button class="btn btn-secondary mt-16" id="analyze-regression-btn">Analyze Impact</button>
+        </div>
+        <div class="regression-results" id="regression-results">
+          <div class="placeholder-msg">Click "Analyze Impact" to see risk-ranked test recommendations</div>
+        </div>
+        <div id="regression-command-block" style="display:none">
+          <div class="field-label">Recommended pytest Command</div>
+          <div class="code-block small" id="regression-command"></div>
+          <div class="risk-chart" id="risk-chart"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Live Execution -->
+  <div class="panel" id="execution-panel">
+    <div class="panel-header">
+      <span class="panel-icon">▶️</span>
+      <h2 class="panel-title">Step 4 — Live Test Execution</h2>
+      <div class="panel-header-right">
+        <div class="toggle-group">
+          <label class="toggle-label">Simulate Broken Locators</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="break-locators-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-hint" id="toggle-hint">Self-Healing OFF</span>
+        </div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="execution-controls">
+        <select class="select-input select-sm" id="suite-select">
+          <option value="all">All Tests (14)</option>
+          <option value="registration">Registration Only (8)</option>
+          <option value="forgot_password">Forgot Password Only (6)</option>
+        </select>
+        <button class="btn btn-run" id="run-tests-btn">
+          <span id="run-btn-icon">▶</span> Run Tests
+        </button>
+      </div>
+
+      <div class="terminal" id="terminal">
+        <div class="terminal-header">
+          <div class="terminal-dots"><span></span><span></span><span></span></div>
+          <span class="terminal-title">pytest output — qa_framework/tests/</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+          <div class="terminal-line dim">Waiting for test execution...</div>
+          <div class="terminal-line dim">Tip: Enable "Simulate Broken Locators" to see the self-healing engine in action!</div>
+        </div>
+      </div>
+
+      <!-- Self-Healing Alert -->
+      <div class="healing-alert" id="healing-alert" style="display:none">
+        <div class="healing-alert-icon">🔧</div>
+        <div class="healing-alert-content">
+          <div class="healing-alert-title">Self-Healing Engine Activated!</div>
+          <div class="healing-alert-body" id="healing-alert-body"></div>
+        </div>
+      </div>
+
+      <!-- Results Summary -->
+      <div class="results-summary" id="results-summary" style="display:none">
+        <div class="result-card result-pass" id="result-pass-card">
+          <div class="result-num" id="result-pass-count">0</div>
+          <div class="result-label">PASSED</div>
+        </div>
+        <div class="result-card result-fail" id="result-fail-card">
+          <div class="result-num" id="result-fail-count">0</div>
+          <div class="result-label">FAILED</div>
+        </div>
+        <div class="result-card result-time" id="result-time-card">
+          <div class="result-num" id="result-duration">–</div>
+          <div class="result-label">SECONDS</div>
+        </div>
+        <div class="result-card result-heal" id="result-heal-card">
+          <div class="result-num" id="result-heal-count">0</div>
+          <div class="result-label">HEALED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ╔══ TAB 2: ARCHITECTURE ════════════════════════════════════════════════╗ -->
+<section class="tab-content" id="tab-content-architecture">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-icon">🏗️</span>
+      <h2 class="panel-title">Framework Architecture</h2>
+      <div class="panel-header-right">
+        <span class="badge badge-purple">Click any component for details</span>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="arch-flow" id="arch-flow">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="arch-detail-panel" id="arch-detail" style="display:none">
+        <button class="arch-detail-close" id="arch-detail-close">✕</button>
+        <div class="arch-detail-icon" id="arch-detail-icon"></div>
+        <h3 class="arch-detail-title" id="arch-detail-title"></h3>
+        <p class="arch-detail-desc" id="arch-detail-desc"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔══ TAB 3: INTERVIEW Q&A ════════════════════════════════════════════════╗ -->
+<section class="tab-content" id="tab-content-qa">
+  <div class="qa-header">
+    <h2 class="qa-main-title">Interview Q&amp;A Trainer</h2>
+    <p class="qa-subtitle">All questions from the client's evaluation criteria — click to expand each answer</p>
+    <div class="qa-search-wrap">
+      <input type="text" class="qa-search" id="qa-search" placeholder="🔍 Search questions..."/>
+    </div>
+  </div>
+  <div class="qa-categories" id="qa-categories">
+    <!-- Rendered by JS -->
+  </div>
+</section>
+
+<!-- ╔══ TAB 4: DEVOPS ══════════════════════════════════════════════════════╗ -->
+<section class="tab-content" id="tab-content-devops">
+  <!-- CI/CD Pipelines -->
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">⬛</span>
+        <h2 class="panel-title">GitHub Actions Pipeline</h2>
+        <div class="panel-header-right"><span class="badge badge-success">Active</span></div>
+      </div>
+      <div class="panel-body" id="github-actions-panel">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">🔷</span>
+        <h2 class="panel-title">Azure DevOps Pipeline</h2>
+        <div class="panel-header-right"><span class="badge badge-info">Configured</span></div>
+      </div>
+      <div class="panel-body" id="azure-devops-panel">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Jira Integration Flow -->
+  <div class="panel mt-24">
+    <div class="panel-header">
+      <span class="panel-icon">🎯</span>
+      <h2 class="panel-title">Jira / Azure DevOps Integration Flow</h2>
+      <div class="panel-header-right"><span class="badge badge-warning">Auto Bug Filing</span></div>
+    </div>
+    <div class="panel-body">
+      <div class="jira-flow" id="jira-flow">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="grid-2 mt-24">
+        <div>
+          <div class="field-label mb-8">Jira REST API Payload (Auto-generated on Failure)</div>
+          <div class="code-block small" id="jira-payload"></div>
+        </div>
+        <div>
+          <div class="field-label mb-8">ADO PublishTestResults Task</div>
+          <div class="code-block small" id="ado-task-yaml"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script src="/assets/script.js"></script>
+</body>
+</html>

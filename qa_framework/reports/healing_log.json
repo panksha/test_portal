@@ -1,0 +1,110 @@
+{
+  "events": [
+    {
+      "timestamp": "2026-05-28T13:01:08.417277",
+      "page": "registration",
+      "locator_key": "first_name",
+      "failed_primary": {
+        "by": "id",
+        "value": "first_name"
+      },
+      "healed_with": {
+        "by": "id",
+        "value": "firstName_v2"
+      },
+      "fallback_attempts": 1,
+      "status": "HEALED"
+    },
+    {
+      "timestamp": "2026-05-28T13:01:19.773524",
+      "page": "registration",
+      "locator_key": "last_name",
+      "failed_primary": {
+        "by": "id",
+        "value": "last_name"
+      },
+      "healed_with": {
+        "by": "id",
+        "value": "lastName_v2"
+      },
+      "fallback_attempts": 1,
+      "status": "HEALED"
+    },
+    {
+      "timestamp": "2026-05-28T13:01:31.050045",
+      "page": "registration",
+      "locator_key": "email",
+      "failed_primary": {
+        "by": "id",
+        "value": "email"
+      },
+      "healed_with": {
+        "by": "id",
+        "value": "emailAddress_v2"
+      },
+      "fallback_attempts": 1,
+      "status": "HEALED"
+    },
+    {
+      "timestamp": "2026-05-28T13:01:42.292725",
+      "page": "registration",
+      "locator_key": "password",
+      "failed_primary": {
+        "by": "id",
+        "value": "password"
+      },
+      "healed_with": {
+        "by": "id",
+        "value": "userPassword_v2"
+      },
+      "fallback_attempts": 1,
+      "status": "HEALED"
+    },
+    {
+      "timestamp": "2026-05-28T13:01:53.594010",
+      "page": "registration",
+      "locator_key": "confirm_password",
+      "failed_primary": {
+        "by": "id",
+        "value": "confirm_password"
+      },
+      "healed_with": {
+        "by": "id",
+        "value": "confirmPassword_v2"
+      },
+      "fallback_attempts": 1,
+      "status": "HEALED"
+    },
+    {
+      "timestamp": "2026-05-28T13:02:04.859725",
+      "page": "registration",
+      "locator_key": "terms",
+      "failed_primary": {
+        "by": "id",
+        "value": "terms"
+      },
+      "healed_with": {
+        "by": "id",
+        "value": "termsCheckbox_v2"
+      },
+      "fallback_attempts": 1,
+      "status": "HEALED"
+    },
+    {
+      "timestamp": "2026-05-28T13:02:15.131172",
+      "page": "registration",
+      "locator_key": "register_btn",
+      "failed_primary": {
+        "by": "id",
+        "value": "register-btn"
+      },
+      "healed_with": {
+        "by": "id",
+        "value": "registerBtn_v2"
+      },
+      "fallback_attempts": 1,
+      "status": "HEALED"
+    }
+  ],
+  "total_heals": 7
+}

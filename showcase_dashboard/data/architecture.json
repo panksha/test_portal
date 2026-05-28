@@ -1,0 +1,95 @@
+{
+  "components": [
+    {
+      "id": "requirement",
+      "label": "📋 Requirement\n(Work Item / Jira Story)",
+      "description": "The starting point. A user story in Jira or Azure DevOps with acceptance criteria. The WorkItemMapper reads this and links components to test IDs.",
+      "color": "#6366f1",
+      "connects_to": ["ai-engine"]
+    },
+    {
+      "id": "ai-engine",
+      "label": "🤖 AI Engine\n(ChatGPT / Copilot)",
+      "description": "Receives structured prompts (System + Role + Chain-of-Thought + Output Schema) and generates a structured test case table. Output is validated against the 5-section checklist.",
+      "color": "#8b5cf6",
+      "connects_to": ["test-cases"]
+    },
+    {
+      "id": "test-cases",
+      "label": "🧪 Test Cases\n(TC-REG-001 to TC-FP-006)",
+      "description": "14 structured test cases across Registration (8) and Forgot Password (6). Each has TC ID, priority, risk level, preconditions, steps, and expected results.",
+      "color": "#06b6d4",
+      "connects_to": ["pom-layer"]
+    },
+    {
+      "id": "pom-layer",
+      "label": "📄 Page Object Model\n(RegistrationPage, ForgotPasswordPage)",
+      "description": "Page-specific classes that encapsulate locators and expose business-level action methods. All interactions delegate to BasePage for wait utilities and self-healing.",
+      "color": "#10b981",
+      "connects_to": ["base-page"]
+    },
+    {
+      "id": "base-page",
+      "label": "🛡️ BasePage\n(Self-Healing + Wait Utils)",
+      "description": "Core infrastructure layer. find() calls the SelfHealingEngine. wait_for_visible() and wait_for_clickable() wrap WebDriverWait. Screenshots are managed via conftest hooks.",
+      "color": "#f59e0b",
+      "connects_to": ["self-healing", "webdriver"]
+    },
+    {
+      "id": "self-healing",
+      "label": "🔧 Self-Healing Engine\n(4-Layer Fallback)",
+      "description": "Intercepts NoSuchElementException. Tries Primary → Fallback ID → CSS Selector → XPath. On success: promotes working locator to primary in config.json, logs the event to healing_log.json.",
+      "color": "#ef4444",
+      "connects_to": ["config-repo"]
+    },
+    {
+      "id": "config-repo",
+      "label": "📁 Locator Repository\n(config.json)",
+      "description": "Central JSON store for all locators with primary + fallback strategies. Updated automatically by the Self-Healing Engine. Single source of truth for all element locations.",
+      "color": "#64748b",
+      "connects_to": []
+    },
+    {
+      "id": "webdriver",
+      "label": "🌐 WebDriver\n(Chrome / Edge)",
+      "description": "Managed by conftest.py fixture. Auto-installs correct driver version via webdriver-manager. Supports headless mode for CI/CD. Teardown and screenshot-on-failure handled automatically.",
+      "color": "#0ea5e9",
+      "connects_to": ["target-app"]
+    },
+    {
+      "id": "target-app",
+      "label": "🖥️ Target Application\n(Flask Portal — :5000)",
+      "description": "The web application under test. Hosts Registration and Forgot Password forms. Supports break_locators mode for the self-healing demo.",
+      "color": "#84cc16",
+      "connects_to": []
+    },
+    {
+      "id": "regression-analyzer",
+      "label": "🔬 Regression Analyzer\n(Risk-Based Selection)",
+      "description": "Takes changed file list from git diff, maps to impacted test modules using defect heatmap, ranks by risk score, and outputs recommended pytest command.",
+      "color": "#a855f7",
+      "connects_to": ["cicd"]
+    },
+    {
+      "id": "cicd",
+      "label": "⚡ CI/CD Pipeline\n(GitHub Actions / Azure DevOps)",
+      "description": "Triggers on push, PR, schedule, and manual dispatch. Runs code quality checks, regression analysis, test execution, and publishes reports and screenshots as artifacts.",
+      "color": "#f97316",
+      "connects_to": ["reports", "jira-ado"]
+    },
+    {
+      "id": "reports",
+      "label": "📊 Reports & Screenshots\n(pytest-html + Artifacts)",
+      "description": "Self-contained HTML report with embedded failure screenshots. Healing log JSON. Published as CI/CD artifacts with 30-day retention.",
+      "color": "#14b8a6",
+      "connects_to": []
+    },
+    {
+      "id": "jira-ado",
+      "label": "🎯 Jira / Azure DevOps\n(Auto Bug Filing)",
+      "description": "On test failure: REST API call creates a Jira bug or ADO work item with pre-populated fields. ADO Test Plans receives JUnit results via PublishTestResults task.",
+      "color": "#3b82f6",
+      "connects_to": []
+    }
+  ]
+}

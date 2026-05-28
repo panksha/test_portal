@@ -1,0 +1,44 @@
+{
+  "github_actions": {
+    "title": "GitHub Actions Pipeline",
+    "filename": ".github/workflows/qa-pipeline.yml",
+    "stages": [
+      {"name": "Code Quality", "icon": "🔍", "description": "Lint with flake8, check formatting"},
+      {"name": "Dependency Install", "icon": "📦", "description": "pip install -r requirements.txt"},
+      {"name": "Start Target App", "icon": "🌐", "description": "python target_app/app.py & then health check"},
+      {"name": "Regression Analysis", "icon": "🔬", "description": "Map changed files to impacted test suites"},
+      {"name": "Run QA Tests", "icon": "🧪", "description": "pytest with HTML report + screenshot on failure"},
+      {"name": "Publish Reports", "icon": "📊", "description": "Upload HTML report as artifact (30-day retention)"},
+      {"name": "Publish Screenshots", "icon": "📸", "description": "Upload failure screenshots on test failure"},
+      {"name": "Publish Healing Log", "icon": "🔧", "description": "Upload self-healing event log"},
+      {"name": "Notify", "icon": "📣", "description": "Simulate Jira bug creation on failure"}
+    ],
+    "triggers": ["push to main/develop/feature/**", "pull_request to main", "workflow_dispatch (manual)"],
+    "key_yaml": "on:\n  push:\n    branches: [main, develop, feature/**]\n  pull_request:\n    branches: [main]\n  workflow_dispatch:\n    inputs:\n      test_suite:\n        type: choice\n        options: [all, registration, forgot_password]\n      break_locators:\n        type: boolean"
+  },
+  "azure_devops": {
+    "title": "Azure DevOps Pipeline",
+    "filename": "azure-pipelines.yml",
+    "stages": [
+      {"name": "Build Stage", "icon": "🏗️", "description": "Install dependencies, run linting"},
+      {"name": "Test Stage", "icon": "🧪", "description": "Start app, analyze regression, execute tests"},
+      {"name": "PublishTestResults", "icon": "📋", "description": "Push JUnit XML to ADO Test Plans automatically"},
+      {"name": "PublishPipelineArtifact", "icon": "📦", "description": "Publish HTML report, screenshots, healing log"},
+      {"name": "Report Stage", "icon": "📊", "description": "Notify teams, simulate Jira bug filing"}
+    ],
+    "triggers": ["push to main/develop/feature/*", "pull_request to main", "Manual run with parameters"],
+    "key_yaml": "- task: PublishTestResults@2\n  inputs:\n    testResultsFormat: 'JUnit'\n    testResultsFiles: 'qa_framework/reports/*.xml'\n    failTaskOnFailedTests: false\n\n- task: PublishPipelineArtifact@1\n  inputs:\n    targetPath: 'qa_framework/reports/html/report.html'\n    artifact: 'HTMLTestReport'"
+  },
+  "jira_integration": {
+    "title": "Jira Integration Flow",
+    "steps": [
+      {"step": 1, "action": "Test Failure Detected", "detail": "pytest exit code != 0 in CI pipeline"},
+      {"step": 2, "action": "Pipeline Extracts Details", "detail": "Test name, failure message, branch, commit SHA, screenshot path"},
+      {"step": 3, "action": "POST to Jira REST API", "detail": "POST https://org.atlassian.net/rest/api/3/issue"},
+      {"step": 4, "action": "Bug Ticket Created", "detail": "Auto-populated: Summary, Description, Priority (based on risk score), Labels (branch + 'automated'), Screenshot attachment"},
+      {"step": 5, "action": "Team Notified", "detail": "Jira sends email + Slack webhook to QA channel"},
+      {"step": 6, "action": "QA Lead Reviews", "detail": "Triage and assign to developer. Link to CI run artifacts."}
+    ],
+    "sample_payload": "{\n  \"fields\": {\n    \"project\": { \"key\": \"QA\" },\n    \"summary\": \"[AUTO] Test failure: test_valid_registration on main\",\n    \"issuetype\": { \"name\": \"Bug\" },\n    \"priority\": { \"name\": \"High\" },\n    \"labels\": [\"automated\", \"regression\", \"main\"],\n    \"description\": {\n      \"version\": 1,\n      \"content\": [{ \"type\": \"paragraph\", \"content\": [{ \"type\": \"text\", \"text\": \"Automated test failure details...\" }] }]\n    }\n  }\n}"
+  }
+}

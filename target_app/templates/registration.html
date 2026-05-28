@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration — CorpPortal</title>
+    <link rel="stylesheet" href="/static/portal.css">
+</head>
+<body class="form-page">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/" style="text-decoration:none; display:flex; align-items:center; gap:8px; color:inherit;">
+                <span class="brand-icon">⬡</span>
+                <span class="brand-name">CorpPortal</span>
+            </a>
+        </div>
+    </nav>
+
+    {% if break_locators %}
+    <div class="demo-banner" id="demo-break-banner">
+        ⚠️ DEMO MODE: Element IDs changed to simulate developer code change. Self-Healing Engine will be tested.
+    </div>
+    {% endif %}
+
+    <main class="form-container">
+        <div class="form-card" id="registration-card">
+            <div class="form-header">
+                <div class="form-icon">👤</div>
+                <h1 class="form-title">Create Your Account</h1>
+                <p class="form-subtitle">Join CorpPortal today. It's free and takes less than 2 minutes.</p>
+            </div>
+
+            <form id="registration-form" class="auth-form" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{% if break_locators %}firstName_v2{% else %}first_name{% endif %}" class="form-label">First Name *</label>
+                        <input
+                            type="text"
+                            id="{% if break_locators %}firstName_v2{% else %}first_name{% endif %}"
+                            name="first_name"
+                            class="form-input"
+                            placeholder="Enter first name"
+                            autocomplete="given-name"
+                        />
+                        <span class="field-error" id="first-name-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="{% if break_locators %}lastName_v2{% else %}last_name{% endif %}" class="form-label">Last Name *</label>
+                        <input
+                            type="text"
+                            id="{% if break_locators %}lastName_v2{% else %}last_name{% endif %}"
+                            name="last_name"
+                            class="form-input"
+                            placeholder="Enter last name"
+                            autocomplete="family-name"
+                        />
+                        <span class="field-error" id="last-name-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{% if break_locators %}emailAddress_v2{% else %}email{% endif %}" class="form-label">Email Address *</label>
+                    <input
+                        type="email"
+                        id="{% if break_locators %}emailAddress_v2{% else %}email{% endif %}"
+                        name="email"
+                        class="form-input"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                    />
+                    <span class="field-error" id="email-error"></span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{% if break_locators %}userPassword_v2{% else %}password{% endif %}" class="form-label">Password *</label>
+                        <input
+                            type="password"
+                            id="{% if break_locators %}userPassword_v2{% else %}password{% endif %}"
+                            name="password"
+                            class="form-input"
+                            placeholder="Create password"
+                            autocomplete="new-password"
+                        />
+                        <span class="field-error" id="password-error"></span>
+                        <div class="password-rules">Must be 8+ chars with uppercase, number &amp; special char</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="{% if break_locators %}confirmPassword_v2{% else %}confirm_password{% endif %}" class="form-label">Confirm Password *</label>
+                        <input
+                            type="password"
+                            id="{% if break_locators %}confirmPassword_v2{% else %}confirm_password{% endif %}"
+                            name="confirm_password"
+                            class="form-input"
+                            placeholder="Re-enter password"
+                            autocomplete="new-password"
+                        />
+                        <span class="field-error" id="confirm-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input
+                            type="checkbox"
+                            id="{% if break_locators %}termsCheckbox_v2{% else %}terms{% endif %}"
+                            name="terms"
+                            class="form-checkbox"
+                        />
+                        <span>I agree to the <a href="#" class="text-link">Terms and Conditions</a> and <a href="#" class="text-link">Privacy Policy</a></span>
+                    </label>
+                    <span class="field-error" id="terms-error"></span>
+                </div>
+
+                <div class="form-error-global" id="form-error-global" style="display:none;"></div>
+                <div class="form-success" id="form-success" style="display:none;"></div>
+
+                <button
+                    type="submit"
+                    class="submit-btn"
+                    id="{% if break_locators %}registerBtn_v2{% else %}register-btn{% endif %}"
+                >
+                    Create Account
+                </button>
+
+                <p class="form-footer-text">Already have an account? <a href="/forgot-password" class="text-link">Sign in</a></p>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('registration-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errorDiv = document.getElementById('form-error-global');
+            const successDiv = document.getElementById('form-success');
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            const form = e.target;
+            const data = {
+                first_name: form.first_name.value,
+                last_name: form.last_name.value,
+                email: form.email.value,
+                password: form.password.value,
+                confirm_password: form.confirm_password.value,
+                terms: form.terms.checked
+            };
+
+            try {
+                const res = await fetch('/register/submit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    successDiv.textContent = result.message;
+                    successDiv.style.display = 'block';
+                    form.reset();
+                } else {
+                    errorDiv.innerHTML = result.errors.map(e => `<li>${e}</li>`).join('');
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.innerHTML = '<li>An unexpected error occurred. Please try again.</li>';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
