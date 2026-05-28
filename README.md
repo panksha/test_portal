@@ -127,6 +127,34 @@ qa_framework/reports/healing_log.json
 
 ---
 
+## 🔗 GitHub Actions CI/CD Pipeline
+
+The framework is fully integrated with **GitHub Actions** for automated regression testing on every push or pull request to the `main` branch.
+
+### How it runs in the cloud:
+* **Workflow File:** [qa-pipeline.yml](file:///.github/workflows/qa-pipeline.yml)
+* **Triggers:** Triggers automatically on any code `push` or `pull_request` to `main`, `develop`, or `feature/*` branches.
+* **On-Demand Manual Trigger:** Supports manual trigger (`workflow_dispatch`) with custom options to run specific test suites and toggle **Simulate Broken Locators** directly in the cloud.
+* **Continuous Testing:** Spins up a clean Linux virtual machine (`ubuntu-latest`), starts the Flask app, and executes all Selenium test cases using a **headless Chrome browser**.
+* **Visual Step Logger:** Logs each E2E test step-by-step (e.g., Chrome opens, typing fields, waiting for AJAX success, reading message box) directly in the GitHub Actions terminal logs!
+* **Artifacts Archiving:** Automatically captures and uploads `HTMLTestReport` and `FailureScreenshots` (only on test failure) directly to the pipeline run summary page for easy download!
+
+---
+
+## 🐞 Automated Jira Tool Integration
+
+Our pipeline includes a DevSecOps **automated bug-raising loop** to automatically create tickets in Jira when a test fails in the CI/CD environment.
+
+### Setup Instructions:
+1. **Create an API Token:** Go to [Atlassian API Tokens](https://id.atlassian.com/manage-profile/security/api-tokens) and click **Create API Token**.
+2. **Configure GitHub Secrets:** Add the following three secure variables under **Settings > Secrets and variables > Actions** in your GitHub repository:
+   * `JIRA_BASE_URL` - Your Jira Cloud URL (e.g., `https://yourorg.atlassian.net`)
+   * `JIRA_USER_EMAIL` - Your Atlassian email address (e.g., `yourname@example.com`)
+   * `JIRA_API_TOKEN` - The secure API Token you generated in Step 1.
+3. **Execution:** The post-execution job in the pipeline checks the run status. If `qa-tests` fails (`if: failure()`), the runner immediately makes a secure `POST /rest/api/3/issue` REST API call to your Jira instance to file a high-priority bug ticket containing build links, branch names, and error details automatically!
+
+---
+
 ## 🔗 Key URLs
 
 | URL | Description |
