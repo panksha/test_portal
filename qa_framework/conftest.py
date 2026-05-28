@@ -72,11 +72,14 @@ def driver(request):
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--window-size=1366,768")
         driver_path = EdgeChromiumDriverManager().install()
-        if not driver_path.endswith(".exe"):
+        if not (driver_path.endswith("msedgedriver.exe") or driver_path.endswith("msedgedriver")):
             dir_name = os.path.dirname(driver_path)
-            resolved_path = os.path.join(dir_name, "msedgedriver.exe")
-            if os.path.exists(resolved_path):
-                driver_path = resolved_path
+            win_path = os.path.join(dir_name, "msedgedriver.exe")
+            nix_path = os.path.join(dir_name, "msedgedriver")
+            if os.path.exists(win_path):
+                driver_path = win_path
+            elif os.path.exists(nix_path):
+                driver_path = nix_path
         service = EdgeService(driver_path)
         drv = webdriver.Edge(service=service, options=options)
     else:
@@ -87,11 +90,14 @@ def driver(request):
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--window-size=1366,768")
         driver_path = ChromeDriverManager().install()
-        if not driver_path.endswith(".exe"):
+        if not (driver_path.endswith("chromedriver.exe") or driver_path.endswith("chromedriver")):
             dir_name = os.path.dirname(driver_path)
-            resolved_path = os.path.join(dir_name, "chromedriver.exe")
-            if os.path.exists(resolved_path):
-                driver_path = resolved_path
+            win_path = os.path.join(dir_name, "chromedriver.exe")
+            nix_path = os.path.join(dir_name, "chromedriver")
+            if os.path.exists(win_path):
+                driver_path = win_path
+            elif os.path.exists(nix_path):
+                driver_path = nix_path
         service = ChromeService(driver_path)
         drv = webdriver.Chrome(service=service, options=options)
 
