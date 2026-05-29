@@ -165,14 +165,56 @@ jobs:
           echo "  - File Jira bugs for any new failures"
           echo "========================================="
 
-      - name: Simulate Jira Bug Creation on Failure
-        if: needs.qa-tests.result == 'failure'
+      - name: Create Real Jira Bug on Failure
+        if: needs.qa-tests.result == 'failure' && secrets.JIRA_API_TOKEN != ''
+        env:
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY || 'QA' }}
         run: |
-          echo "SIMULATED: Creating Jira Bug ticket..."
-          echo "  Project: QA-DEMO"
-          echo "  Issue Type: Bug"
-          echo "  Summary: Automated test failure on branch ${{ github.ref_name }}"
-          echo "  Priority: High"
-          echo "  Labels: automated, regression, ${{ github.ref_name }}"
-          echo "  Assignee: QA Lead"
-          echo "SIMULATED: Jira API call -> POST https://yourorg.atlassian.net/rest/api/3/issue"
+          echo "Connecting to Jira Cloud to raise an automated bug ticket..."
+          
+          # 1. Base64 encode basic authentication
+          AUTH_HEADER=$(echo -n "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" | base64 -w 0)
+          
+          # 2. Fire POST request to Jira REST API v3
+          curl --request POST \
+            --url "$JIRA_BASE_URL/rest/api/3/issue" \
+            --header "Authorization: Basic $AUTH_HEADER" \
+            --header "Accept: application/json" \
+            --header "Content-Type: application/json" \
+            --data "{
+              \"fields\": {
+                \"project\": {
+                  \"key\": \"$JIRA_PROJECT_KEY\"
+                },
+                \"summary\": \"[BUG] Automated QA Test Failure on Branch ${{ github.ref_name }}\",
+                \"description\": {
+                  \"type\": \"doc\",
+                  \"version\": 1,
+                  \"content\": [
+                    {
+                      \"type\": \"paragraph\",
+                      \"content\": [
+                        {
+                          \"type\": \"text\",
+                          \"text\": \"An E2E regression test case failed during pipeline run. Branch: ${{ github.ref_name }}. Action: Download the HTML Test Report and failure screenshots from the GitHub Actions run page: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                \"issuetype\": {
+                  \"name\": \"Bug\"
+                },
+                \"priority\": {
+                  \"name\": \"High\"
+                },
+                \"labels\": [
+                  \"automated-failure\",
+                  \"regression\"
+                ]
+              }
+            }"
+          echo -e "\n[OK] Automated Jira ticket successfully requested!"
