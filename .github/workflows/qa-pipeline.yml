@@ -100,13 +100,16 @@ jobs:
             --html=qa_framework/reports/html/report.html \
             --self-contained-html \
             -v \
-            --tb=short \
-            -x
+            --tb=short
         env:
           BASE_URL: http://localhost:${{ env.TARGET_APP_PORT }}
           BROWSER: ${{ matrix.browser }}
           HEADLESS: true
           BREAK_LOCATORS: ${{ env.BREAK_LOCATORS }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY || 'QA' }}
 
       - name: Check Self-Healing Log
         if: always()

@@ -31,6 +31,25 @@ def _load_config():
         return json.load(f)
 
 
+def _resolve_driver_path(driver_path, target_name):
+    """
+    Resolves the actual driver binary path. Handles issues where webdriver_manager
+    returns a text file like THIRD_PARTY_NOTICES instead of the executable.
+    """
+    if driver_path.endswith(target_name):
+        return driver_path
+        
+    search_dir = os.path.dirname(driver_path)
+    for _ in range(3):
+        if os.path.exists(search_dir):
+            for root, dirs, files in os.walk(search_dir):
+                if target_name in files:
+                    return os.path.join(root, target_name)
+        search_dir = os.path.dirname(search_dir)
+        
+    return driver_path
+
+
 def pytest_configure(config):
     """Configure pytest-html report metadata."""
     os.makedirs(REPORTS_DIR, exist_ok=True)
@@ -72,14 +91,8 @@ def driver(request):
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--window-size=1366,768")
         driver_path = EdgeChromiumDriverManager().install()
-        if not (driver_path.endswith("msedgedriver.exe") or driver_path.endswith("msedgedriver")):
-            dir_name = os.path.dirname(driver_path)
-            win_path = os.path.join(dir_name, "msedgedriver.exe")
-            nix_path = os.path.join(dir_name, "msedgedriver")
-            if os.path.exists(win_path):
-                driver_path = win_path
-            elif os.path.exists(nix_path):
-                driver_path = nix_path
+        target_name = "msedgedriver.exe" if os.name == "nt" else "msedgedriver"
+        driver_path = _resolve_driver_path(driver_path, target_name)
         service = EdgeService(driver_path)
         drv = webdriver.Edge(service=service, options=options)
     else:
@@ -90,14 +103,8 @@ def driver(request):
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--window-size=1366,768")
         driver_path = ChromeDriverManager().install()
-        if not (driver_path.endswith("chromedriver.exe") or driver_path.endswith("chromedriver")):
-            dir_name = os.path.dirname(driver_path)
-            win_path = os.path.join(dir_name, "chromedriver.exe")
-            nix_path = os.path.join(dir_name, "chromedriver")
-            if os.path.exists(win_path):
-                driver_path = win_path
-            elif os.path.exists(nix_path):
-                driver_path = nix_path
+        target_name = "chromedriver.exe" if os.name == "nt" else "chromedriver"
+        driver_path = _resolve_driver_path(driver_path, target_name)
         service = ChromeService(driver_path)
         drv = webdriver.Chrome(service=service, options=options)
 
@@ -114,7 +121,7 @@ def driver(request):
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """Capture screenshot when a test fails."""
+    """Capture screenshot and file Jira bug when a test fails."""
     outcome = yield
     report = outcome.get_result()
 
@@ -135,6 +142,25 @@ def pytest_runtest_makereport(item, call):
                     report.extras.append(pytest_html.extras.url(driver.current_url, "Page URL"))
             except Exception as e:
                 logging.warning(f"[Screenshot] Failed to capture: {e}")
+
+        # Trigger automated Jira bug creation in real-time
+        try:
+            from qa_framework.jira_reporter import report_failure_to_jira
+            
+            # Safely extract error details
+            error_msg = "Test case execution failed."
+            if hasattr(report, "longrepr"):
+                if hasattr(report.longrepr, "reprcrash"):
+                    error_msg = str(report.longrepr.reprcrash.message)
+                else:
+                    error_msg = str(report.longrepr)
+            
+            traceback_text = str(report.longrepr) if hasattr(report, "longrepr") else "No traceback available"
+            
+            # File bug in Jira (skips gracefully if credentials are not set in environment or .env)
+            report_failure_to_jira(item.name, error_msg, traceback_text)
+        except Exception as e:
+            logging.warning(f"[Jira] Failed to trigger automatic bug reporting: {e}")
 
 
 # ── Environment Info for Report ────────────────────────────────────────────
