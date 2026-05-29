@@ -96,7 +96,22 @@ jobs:
         run: |
           mkdir -p qa_framework/reports/html
           mkdir -p qa_framework/reports/screenshots
-          python -m pytest qa_framework/tests/ \
+          
+          # Dynamically map the selected test suite
+          TEST_SUITE="${{ github.event.inputs.test_suite || 'all' }}"
+          TEST_PATH="qa_framework/tests/"
+          
+          if [ "$TEST_SUITE" = "registration" ]; then
+            echo "Running User Registration test suite..."
+            TEST_PATH="qa_framework/tests/test_registration.py"
+          elif [ "$TEST_SUITE" = "forgot_password" ]; then
+            echo "Running Forgot Password test suite..."
+            TEST_PATH="qa_framework/tests/test_forgot_password.py"
+          else
+            echo "Running complete QA regression test suite..."
+          fi
+          
+          python -m pytest "$TEST_PATH" \
             --html=qa_framework/reports/html/report.html \
             --self-contained-html \
             -v \
@@ -144,7 +159,7 @@ jobs:
           retention-days: 30
 
   # ─────────────────────────────────────────────
-  # JOB 3: Notify Results (Simulated Jira/Slack)
+  # JOB 3: Notify Results (Jira Status Integration)
   # ─────────────────────────────────────────────
   notify:
     name: Notify & Integrate
@@ -178,7 +193,7 @@ jobs:
         run: |
           echo "Connecting to Jira Cloud to raise an automated bug ticket..."
           
-          # 1. Base64 encode basic authentication
+          # 1. Base64 encode basic authentication credentials
           AUTH_HEADER=$(echo -n "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" | base64 -w 0)
           
           # 2. Fire POST request to Jira REST API v3

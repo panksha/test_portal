@@ -97,7 +97,21 @@ stages:
               script: |
                 mkdir -p qa_framework/reports/html
                 mkdir -p qa_framework/reports/screenshots
-                python3 -m pytest qa_framework/tests/ \
+                
+                TEST_SUITE="${{ parameters.testSuite }}"
+                TEST_PATH="qa_framework/tests/"
+                
+                if [ "$TEST_SUITE" = "registration" ]; then
+                  echo "Running User Registration test suite..."
+                  TEST_PATH="qa_framework/tests/test_registration.py"
+                elif [ "$TEST_SUITE" = "forgot_password" ]; then
+                  echo "Running Forgot Password test suite..."
+                  TEST_PATH="qa_framework/tests/test_forgot_password.py"
+                else
+                  echo "Running complete QA regression test suite..."
+                fi
+                
+                python3 -m pytest "$TEST_PATH" \
                   --html=qa_framework/reports/html/report.html \
                   --self-contained-html \
                   -v --tb=short
